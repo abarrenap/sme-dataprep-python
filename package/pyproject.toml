@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sme-dataprep"
+version = "0.1.0"
+description = "Educational data preprocessing utilities for SME coursework."
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [
+  {name = "Aimar Barrena Pol"}
+]
+dependencies = [
+  "numpy>=1.24",
+  "pandas>=2.0",
+  "matplotlib>=3.7"
+]
+
+[project.optional-dependencies]
+dev = [
+  "jupyter>=1.0"
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["dataprepkit*"]
