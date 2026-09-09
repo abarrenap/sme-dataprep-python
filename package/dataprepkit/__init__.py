@@ -13,6 +13,13 @@ from .discretization import (
     discretize_equal_width,
 )
 from .metrics import attribute_metrics, auc_score, entropy, variance
+from .management import (
+    dataset_summary,
+    detect_variable_types,
+    impute_missing_values,
+    missing_value_report,
+    validate_binary_target,
+)
 from .preprocessing import (
     filter_variables,
     normalize_dataset,
@@ -46,6 +53,10 @@ __all__ = [
     "discretize_equal_width",
     "entropy",
     "filter_variables",
+    "dataset_summary",
+    "detect_variable_types",
+    "impute_missing_values",
+    "missing_value_report",
     "mutual_information",
     "normalize_dataset",
     "normalize_variable",
@@ -58,5 +69,6 @@ __all__ = [
     "plot_variavle_distribution",
     "standardize_dataset",
     "standardize_variable",
+    "validate_binary_target",
     "variance",
 ]

@@ -13,6 +13,13 @@ from .discretization import (
     discretize_dataset_equal_frequency,
     discretize_dataset_equal_width,
 )
+from .management import (
+    dataset_summary,
+    detect_variable_types,
+    impute_missing_values,
+    missing_value_report,
+    validate_binary_target,
+)
 from .metrics import attribute_metrics
 from .preprocessing import filter_variables, normalize_dataset, standardize_dataset
 
@@ -90,6 +97,67 @@ class DataPrepDataset:
             values.
         """
         return attribute_metrics(self.data, target=self.target, positive_class=positive_class)
+
+    def summary(self) -> dict:
+        """Return a compact summary of the dataset.
+
+        Returns
+        -------
+        dict
+            Dataset dimensions, variable type report, missing-value report, and
+            lists of numerical and categorical columns.
+        """
+        return dataset_summary(self.data)
+
+    def missing_report(self) -> pd.DataFrame:
+        """Return missing-value counts and rates for all dataset columns."""
+        return missing_value_report(self.data)
+
+    def variable_types(self) -> pd.DataFrame:
+        """Return practical variable type detection for all dataset columns."""
+        return detect_variable_types(self.data)
+
+    def validate_target(self) -> bool:
+        """Check that the dataset target exists and is binary.
+
+        Returns
+        -------
+        bool
+            `True` when the target is valid.
+
+        Raises
+        ------
+        ValueError
+            If no target is defined, the target column is missing, or the target
+            is not binary.
+        """
+        if self.target is None:
+            raise ValueError("no target column has been defined.")
+        return validate_binary_target(self.data, self.target)
+
+    def impute_missing(self, strategy: str = "auto", fill_value=None, columns=None) -> "DataPrepDataset":
+        """Return a dataset copy with missing values imputed.
+
+        Parameters
+        ----------
+        strategy:
+            Imputation strategy: `auto`, `mean`, `median`, `mode`, or
+            `constant`.
+        fill_value:
+            Constant used when `strategy='constant'`.
+        columns:
+            Optional list of columns to impute. If omitted, all columns are
+            checked.
+
+        Returns
+        -------
+        DataPrepDataset
+            New dataset object with imputed data and the same target.
+        """
+        return DataPrepDataset(
+            impute_missing_values(self.data, strategy=strategy, fill_value=fill_value, columns=columns),
+            target=self.target,
+        )
 
     def normalize(self, columns=None) -> "DataPrepDataset":
         """Return a dataset copy with numerical columns normalized to `[0, 1]`.

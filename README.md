@@ -54,6 +54,11 @@ Additional implemented extras:
 - `discretize_by_thresholds`: manual cut points chosen by the analyst.
 - `discretize_by_standard_deviation`: groups values by distance from the mean.
 - `plot_variable_distribution`: KDE-style distribution plot, optionally split by target class.
+- `dataset_summary`: compact overview of rows, columns, types, and missing values.
+- `missing_value_report`: missing counts and missing percentages by variable.
+- `detect_variable_types`: practical type detection for numerical, categorical, binary, identifier, and high-cardinality variables.
+- `validate_binary_target`: checks that a target exists and has exactly two classes.
+- `impute_missing_values`: simple missing-value imputation with median/mode or explicit strategies.
 
 ## Second dataset recommendation
 
