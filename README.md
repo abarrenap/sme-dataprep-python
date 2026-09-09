@@ -8,6 +8,8 @@
 .
 ├── README.md
 ├── data/
+│   ├── diabetes/
+│   │   └── diabetes_prediction_dataset.csv
 │   └── titanic/
 │       ├── test.csv
 │       └── train.csv
@@ -19,6 +21,7 @@
     │   ├── associations.py
     │   ├── dataset.py
     │   ├── discretization.py
+    │   ├── management.py
     │   ├── metrics.py
     │   ├── preprocessing.py
     │   └── visualization.py
@@ -33,15 +36,22 @@ cd package
 python3 -m pip install -e .
 ```
 
-## Current example dataset
+## Example datasets
 
-The first example uses the Titanic dataset in `data/titanic/train.csv`.
+The notebook uses two datasets:
 
-- Binary target: `Survived`
+1. `data/titanic/train.csv` is used for a general preprocessing walkthrough because it has numerical variables, categorical variables, missing values, and a binary target.
+2. `data/diabetes/diabetes_prediction_dataset.csv` is used for a compact realistic analysis focused on target validation, missing-value checks, AUC/ROC, distribution plots, and short conclusions.
+
+- Titanic binary target: `Survived`
 - Numerical variables: `Age`, `SibSp`, `Parch`, `Fare`
 - Categorical variables: `Pclass`, `Sex`, `Embarked`
 
-The notebook intentionally ignores identifiers and high-cardinality text fields such as `PassengerId`, `Name`, `Ticket`, and `Cabin` because they make the first explanation less clear.
+- Diabetes binary target: `diabetes`
+- Main numerical variables: `age`, `bmi`, `HbA1c_level`, `blood_glucose_level`
+- Other relevant variables: `hypertension`, `heart_disease`, `gender`, `smoking_history`
+
+The notebook intentionally treats the first dataset as a generic supervised table rather than focusing on its story. The final diabetes section is more analytical and interprets the most relevant outputs.
 
 The AUC visualization section includes two different plots:
 
@@ -59,10 +69,6 @@ Additional implemented extras:
 - `detect_variable_types`: practical type detection for numerical, categorical, binary, identifier, and high-cardinality variables.
 - `validate_binary_target`: checks that a target exists and has exactly two classes.
 - `impute_missing_values`: simple missing-value imputation with median/mode or explicit strategies.
-
-## Second dataset recommendation
-
-For the later second example, choose another tabular dataset with numerical columns, categorical columns, and one binary target. Good Kaggle-style examples include customer churn, credit default, heart disease, bank marketing, or loan approval datasets.
 
 ## Publishing later
 
