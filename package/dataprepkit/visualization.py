@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 
 from .metrics import attribute_metrics, auc_score
@@ -95,6 +96,56 @@ def plot_roc_curve(scores, target, positive_class=None, ax=None, label: str | No
     return ax
 
 
+def plot_roc_curves(data: pd.DataFrame, target: str, columns=None, positive_class=None, ax=None):
+    """Plot ROC curves for several numerical attributes.
+
+    This function extends `plot_roc_curve` to multiple variables. It is useful
+    when comparing which numerical attributes separate the positive and negative
+    classes better. If `columns` is omitted, all numerical columns except the
+    target are plotted.
+
+    Parameters
+    ----------
+    data:
+        Input pandas DataFrame containing numerical attributes and a binary
+        target column.
+    target:
+        Name of the binary target column.
+    columns:
+        Optional list of numerical columns to plot. If omitted, all numerical
+        columns except `target` are used.
+    positive_class:
+        Class value considered positive for AUC and ROC calculation.
+    ax:
+        Optional matplotlib Axes object. If omitted, a new figure and axes are
+        created.
+
+    Returns
+    -------
+    matplotlib.axes.Axes
+        Axes containing one ROC curve per selected numerical attribute.
+    """
+    selected = columns or [column for column in data.select_dtypes(include="number").columns if column != target]
+    ax = ax or plt.subplots(figsize=(7, 6))[1]
+    for column in selected:
+        curve = _roc_curve_points(data[column], data[target], positive_class=positive_class)
+        auc = auc_score(data[column], data[target], positive_class=positive_class)
+        ax.plot(
+            curve["false_positive_rate"],
+            curve["true_positive_rate"],
+            linewidth=2,
+            label=f"{column} (AUC = {auc:.3f})",
+        )
+    ax.plot([0, 1], [0, 1], linestyle="--", color="gray", label="random baseline")
+    ax.set_xlim(0, 1)
+    ax.set_ylim(0, 1)
+    ax.set_xlabel("False positive rate")
+    ax.set_ylabel("True positive rate")
+    ax.set_title("ROC curves")
+    ax.legend()
+    return ax
+
+
 def compare_auc_values(data: pd.DataFrame, target: str, positive_class=None, ax=None):
     """Compare AUC values for all numerical attributes with a barplot.
 
@@ -131,6 +182,96 @@ def compare_auc_values(data: pd.DataFrame, target: str, positive_class=None, ax=
     ax.set_title("AUC by numerical attribute")
     ax.tick_params(axis="x", rotation=45)
     return ax
+
+
+def _kde_points(values, points: int = 200):
+    series = pd.Series(values).dropna().astype(float)
+    if series.empty:
+        raise ValueError("distribution plot requires at least one non-missing numerical value.")
+    minimum = float(series.min())
+    maximum = float(series.max())
+    if minimum == maximum:
+        grid = np.linspace(minimum - 0.5, maximum + 0.5, points)
+        bandwidth = 1.0
+    else:
+        grid = np.linspace(minimum, maximum, points)
+        std = float(series.std(ddof=0))
+        bandwidth = 1.06 * std * (len(series) ** (-1 / 5)) if std > 0 else (maximum - minimum) / 10
+        if bandwidth == 0:
+            bandwidth = 1.0
+    differences = (grid[:, None] - series.to_numpy()[None, :]) / bandwidth
+    density = np.exp(-0.5 * differences**2).sum(axis=1)
+    density = density / (len(series) * bandwidth * np.sqrt(2 * np.pi))
+    return grid, density
+
+
+def plot_variable_distribution(
+    data: pd.DataFrame,
+    variable: str,
+    target: str | None = None,
+    by_class: bool = False,
+    ax=None,
+):
+    """Plot a KDE-style distribution curve for a numerical variable.
+
+    The function estimates the variable distribution using a simple Gaussian
+    kernel density estimate implemented inside the package. When `by_class` is
+    `True`, one density line is drawn for each class of the target variable.
+
+    Parameters
+    ----------
+    data:
+        Input pandas DataFrame.
+    variable:
+        Name of the numerical variable to plot.
+    target:
+        Optional class column. Required when `by_class=True`.
+    by_class:
+        If `False`, draw one overall density curve. If `True`, draw one density
+        curve per target class.
+    ax:
+        Optional matplotlib Axes object. If omitted, a new figure and axes are
+        created.
+
+    Returns
+    -------
+    matplotlib.axes.Axes
+        Axes containing the distribution curve or class-specific curves.
+
+    Raises
+    ------
+    TypeError
+        If `variable` is not numerical.
+    ValueError
+        If `by_class=True` and no `target` is provided.
+    """
+    if not pd.api.types.is_numeric_dtype(data[variable]):
+        raise TypeError("distribution plot requires a numerical variable.")
+    if by_class and target is None:
+        raise ValueError("target must be provided when by_class=True.")
+    ax = ax or plt.subplots(figsize=(7, 4))[1]
+    if by_class:
+        for class_value in pd.Series(data[target]).dropna().unique():
+            class_values = data.loc[data[target] == class_value, variable]
+            grid, density = _kde_points(class_values)
+            ax.plot(grid, density, linewidth=2, label=f"{target} = {class_value}")
+        ax.legend()
+    else:
+        grid, density = _kde_points(data[variable])
+        ax.plot(grid, density, linewidth=2, label=variable)
+    ax.set_xlabel(variable)
+    ax.set_ylabel("Density")
+    ax.set_title(f"Distribution of {variable}")
+    return ax
+
+
+def plot_variavle_distribution(*args, **kwargs):
+    """Alias for `plot_variable_distribution`.
+
+    This keeps accidental calls with the misspelled name working. Prefer the
+    correctly spelled `plot_variable_distribution` in new code.
+    """
+    return plot_variable_distribution(*args, **kwargs)
 
 
 def plot_auc_values(data: pd.DataFrame, target: str, positive_class=None, ax=None):

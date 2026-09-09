@@ -7,7 +7,12 @@ from dataclasses import dataclass
 import pandas as pd
 
 from .associations import association_matrix
-from .discretization import discretize_dataset_equal_frequency, discretize_dataset_equal_width
+from .discretization import (
+    discretize_dataset_by_standard_deviation,
+    discretize_dataset_by_thresholds,
+    discretize_dataset_equal_frequency,
+    discretize_dataset_equal_width,
+)
 from .metrics import attribute_metrics
 from .preprocessing import filter_variables, normalize_dataset, standardize_dataset
 
@@ -153,6 +158,60 @@ class DataPrepDataset:
             New dataset object with selected columns converted to bin labels.
         """
         return DataPrepDataset(discretize_dataset_equal_frequency(self.data, bins=bins, columns=columns), target=self.target)
+
+    def discretize_by_thresholds(self, thresholds, columns=None, labels=None) -> "DataPrepDataset":
+        """Return a dataset copy discretized with manual thresholds.
+
+        Parameters
+        ----------
+        thresholds:
+            List of thresholds used for every selected column, or dictionary
+            mapping column names to threshold lists.
+        columns:
+            Optional columns to discretize. If omitted, all numerical columns
+            are transformed.
+        labels:
+            Optional group labels.
+
+        Returns
+        -------
+        DataPrepDataset
+            New dataset object with selected columns converted to threshold
+            labels.
+        """
+        return DataPrepDataset(
+            discretize_dataset_by_thresholds(self.data, thresholds=thresholds, columns=columns, labels=labels),
+            target=self.target,
+        )
+
+    def discretize_by_standard_deviation(self, sd_thresholds=(-1, 1), columns=None, labels=None) -> "DataPrepDataset":
+        """Return a dataset copy discretized by distance from each column mean.
+
+        Parameters
+        ----------
+        sd_thresholds:
+            Cut points expressed in standard deviations from the mean.
+        columns:
+            Optional columns to discretize. If omitted, all numerical columns
+            are transformed.
+        labels:
+            Optional group labels.
+
+        Returns
+        -------
+        DataPrepDataset
+            New dataset object with selected columns converted to standard-
+            deviation groups.
+        """
+        return DataPrepDataset(
+            discretize_dataset_by_standard_deviation(
+                self.data,
+                sd_thresholds=sd_thresholds,
+                columns=columns,
+                labels=labels,
+            ),
+            target=self.target,
+        )
 
     def filter(self, metric: str, threshold: float, operator: str = ">=", positive_class=None) -> "DataPrepDataset":
         """Return a dataset copy filtered by an attribute metric.
