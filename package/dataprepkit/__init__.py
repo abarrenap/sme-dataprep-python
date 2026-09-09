@@ -16,7 +16,7 @@ from .preprocessing import (
     standardize_dataset,
     standardize_variable,
 )
-from .visualization import plot_association_matrix, plot_auc_values
+from .visualization import compare_auc_values, plot_association_matrix, plot_auc_values, plot_roc_curve
 
 __all__ = [
     "DataPrepDataset",
@@ -33,8 +33,10 @@ __all__ = [
     "mutual_information",
     "normalize_dataset",
     "normalize_variable",
+    "compare_auc_values",
     "plot_association_matrix",
     "plot_auc_values",
+    "plot_roc_curve",
     "standardize_dataset",
     "standardize_variable",
     "variance",
