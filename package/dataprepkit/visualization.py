@@ -9,7 +9,26 @@ from .metrics import attribute_metrics
 
 
 def plot_auc_values(data: pd.DataFrame, target: str, positive_class=None, ax=None):
-    """Plot AUC values for numerical attributes."""
+    """Plot AUC values for all numerical attributes in a dataset.
+
+    Parameters
+    ----------
+    data:
+        Input pandas DataFrame containing numerical attributes and a binary
+        target column.
+    target:
+        Name of the binary target column.
+    positive_class:
+        Optional class value treated as positive for AUC.
+    ax:
+        Optional matplotlib Axes object. If omitted, a new figure and axes are
+        created.
+
+    Returns
+    -------
+    matplotlib.axes.Axes
+        Axes containing a bar plot ordered from highest to lowest AUC.
+    """
     metrics = attribute_metrics(data, target=target, positive_class=positive_class)
     auc_values = metrics[metrics["metric"] == "auc"].sort_values("value", ascending=False)
     ax = ax or plt.subplots(figsize=(8, 4))[1]
@@ -23,7 +42,23 @@ def plot_auc_values(data: pd.DataFrame, target: str, positive_class=None, ax=Non
 
 
 def plot_association_matrix(matrix: pd.DataFrame, ax=None, cmap: str = "viridis"):
-    """Plot a correlation or mutual-information matrix."""
+    """Plot an association matrix as a heatmap.
+
+    Parameters
+    ----------
+    matrix:
+        Square DataFrame returned by `association_matrix`.
+    ax:
+        Optional matplotlib Axes object. If omitted, a new figure and axes are
+        created.
+    cmap:
+        Matplotlib color map used for the heatmap.
+
+    Returns
+    -------
+    matplotlib.axes.Axes
+        Axes containing the heatmap and color bar.
+    """
     ax = ax or plt.subplots(figsize=(7, 6))[1]
     image = ax.imshow(matrix.astype(float), cmap=cmap)
     ax.set_xticks(range(len(matrix.columns)))
