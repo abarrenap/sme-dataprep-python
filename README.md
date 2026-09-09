@@ -7,6 +7,10 @@
 ```text
 .
 ├── README.md
+├── data/
+│   └── titanic/
+│       ├── test.csv
+│       └── train.csv
 ├── usage_examples.ipynb
 └── package/
     ├── pyproject.toml
@@ -29,16 +33,19 @@ cd package
 python3 -m pip install -e .
 ```
 
-## Dataset recommendation
+## Current example dataset
 
-For the final notebook, choose a tabular dataset with:
+The first example uses the Titanic dataset in `data/titanic/train.csv`.
 
-- Several numerical columns, so variance, AUC, normalization, standardization, correlation, and discretization can be shown.
-- Several categorical columns, so entropy and mutual information can be shown.
-- One binary target/class column, such as `yes/no`, `0/1`, `approved/rejected`, or `disease/no_disease`, because AUC needs a supervised binary class.
-- A manageable size, ideally between 500 and 20,000 rows, so examples run quickly.
+- Binary target: `Survived`
+- Numerical variables: `Age`, `SibSp`, `Parch`, `Fare`
+- Categorical variables: `Pclass`, `Sex`, `Embarked`
 
-Good Kaggle-style examples include customer churn, credit default, Titanic survival, heart disease, bank marketing, or loan approval datasets.
+The notebook intentionally ignores identifiers and high-cardinality text fields such as `PassengerId`, `Name`, `Ticket`, and `Cabin` because they make the first explanation less clear.
+
+## Second dataset recommendation
+
+For the later second example, choose another tabular dataset with numerical columns, categorical columns, and one binary target. Good Kaggle-style examples include customer churn, credit default, heart disease, bank marketing, or loan approval datasets.
 
 ## Publishing later
 
