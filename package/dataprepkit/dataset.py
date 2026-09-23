@@ -46,7 +46,7 @@ class DataPrepDataset:
     target: str | None = None
 
     @classmethod
-    def from_csv(cls, path: str, target: str | None = None, **kwargs) -> "DataPrepDataset":
+    def from_csv(cls, path: str, target: str | None = None, variables: list[str] | None = None, **kwargs) -> "DataPrepDataset":
         """Read a CSV file and return a `DataPrepDataset`.
 
         Parameters
@@ -55,6 +55,8 @@ class DataPrepDataset:
             Path to the CSV file.
         target:
             Optional target column name.
+        variables:
+            Optional list of column names to select. If omitted, all columns are loaded.
         **kwargs:
             Additional keyword arguments passed to `pandas.read_csv`.
 
@@ -63,7 +65,10 @@ class DataPrepDataset:
         DataPrepDataset
             Dataset object containing the loaded DataFrame and target name.
         """
-        return cls(pd.read_csv(path, **kwargs), target=target)
+        data = pd.read_csv(path, **kwargs)
+        if variables is not None:
+            data = data[variables]
+        return cls(data, target=target)
 
     def to_csv(self, path: str, **kwargs) -> None:
         """Write the dataset DataFrame to a CSV file.

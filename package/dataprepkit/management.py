@@ -111,9 +111,6 @@ def dataset_summary(data: pd.DataFrame) -> dict:
         "n_rows": int(data.shape[0]),
         "n_columns": int(data.shape[1]),
         "variables": variable_info,
-        "missing_values": missing_value_report(data),
-        "numerical_columns": list(data.select_dtypes(include="number").columns),
-        "categorical_columns": list(data.select_dtypes(exclude="number").columns),
     }
 
 
